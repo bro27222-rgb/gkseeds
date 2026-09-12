@@ -1,6 +1,6 @@
 import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
-import logo from '../assets/Logo.png';  
+import logo from '../assets/logo.png';  
 
 const getBase64Image = (imgUrl) => {
   return new Promise((resolve, reject) => {
