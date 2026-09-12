@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:match*",
-      "destination": "https://backendfor-srivishnu-seeds.vercel.app/api/:match*"
+      "destination": "https://backendfor-gangakaveri-seeds.vercel.app/api/:match*"
     },
     {
       "source": "/(.*)",

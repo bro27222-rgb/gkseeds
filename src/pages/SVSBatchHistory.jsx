@@ -67,7 +67,7 @@ const SVSBatchHistory = () => {
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Production_Logs");
-    XLSX.writeFile(workbook, `SriVishnu_Seeds_Production_${new Date().toLocaleDateString()}.xlsx`);
+    XLSX.writeFile(workbook, `gangakaveri_Seeds_Production_${new Date().toLocaleDateString()}.xlsx`);
   };
 
   return (
