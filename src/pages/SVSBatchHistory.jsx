@@ -7,12 +7,26 @@ const SVSBatchHistory = () => {
   const [loading, setLoading] = useState(true);
   const [editProduct, setEditProduct] = useState(null);
 
+  // ── Toast Notification State ──
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
+
+  const showToast = (message, type = 'success') => {
+    setToast({ visible: true, message, type });
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, visible: false }));
+    }, 3500);
+  };
+
   const fetchStats = async () => {
     try {
-      const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/admin/stats`);
+      const token = localStorage.getItem('svs_token');
+      const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/admin/stats`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       setStats(data);
     } catch (err) {
       console.error("Failed to load stats:", err);
+      showToast("Failed to load history data.", "error");
     } finally {
       setLoading(false);
     }
@@ -23,29 +37,37 @@ const SVSBatchHistory = () => {
   const handleDelete = async (productId) => {
     if (!window.confirm("Are you sure you want to delete this batch and all its QR codes?")) return;
     try {
-      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/admin/product/${productId}`);
-      alert("Batch deleted successfully");
+      const token = localStorage.getItem('svs_token');
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/admin/product/${productId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      showToast("Batch deleted successfully", "success");
       fetchStats();
-    } catch {
-      alert("Failed to delete batch");
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || "Failed to delete batch";
+      showToast(errorMsg, "error");
     }
   };
 
   const handleEditSave = async (e) => {
     e.preventDefault();
     try {
+      const token = localStorage.getItem('svs_token');
       await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/admin/product/${editProduct.id}`, {
         cropName: editProduct.name,
         packedVariety: editProduct.variety,
         mrp: editProduct.mrp,
         unitSalePrice: editProduct.usp,
         netQty: editProduct.netQty
+      }, {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-      alert("Product updated successfully!");
+      showToast("Product updated successfully!", "success");
       setEditProduct(null);
       fetchStats();
-    } catch {
-      alert("Failed to update product");
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || "Failed to update product";
+      showToast(errorMsg, "error");
     }
   };
 
@@ -73,6 +95,65 @@ const SVSBatchHistory = () => {
   return (
     <>
       <style>{`
+        /* ── TOAST NOTIFICATION CSS ── */
+        .svsd-toast {
+          position: fixed;
+          bottom: 30px;
+          left: 30px;
+          background: #111d14;
+          color: white;
+          padding: 16px 20px;
+          border-radius: 8px;
+          box-shadow: 0 10px 40px rgba(17,29,20,0.4);
+          z-index: 1000;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          transform: translateX(-150%);
+          transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+          overflow: hidden;
+          min-width: 320px;
+        }
+        .svsd-toast.show {
+          transform: translateX(0);
+        }
+        .svsd-toast-message {
+          font-weight: 500;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .svsd-toast-bar-wrap {
+          height: 4px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 2px;
+          width: 100%;
+          overflow: hidden;
+        }
+        .svsd-toast-bar {
+          height: 100%;
+          background: #1bba6b;
+          width: 100%;
+          transform-origin: left;
+        }
+        .svsd-toast.error .svsd-toast-bar {
+          background: #e74c3c;
+        }
+        .svsd-toast.error .svsd-toast-icon {
+          color: #e74c3c;
+        }
+        .svsd-toast.success .svsd-toast-icon {
+          color: #1bba6b;
+        }
+        @keyframes shrinkToastBar {
+          from { width: 100%; }
+          to { width: 0%; }
+        }
+        .svsd-toast.show .svsd-toast-bar {
+          animation: shrinkToastBar 3.5s linear forwards;
+        }
+        
         /* ════════════════════════════════
            BATCH HISTORY ROOT
         ════════════════════════════════ */
@@ -565,6 +646,21 @@ const SVSBatchHistory = () => {
           border-color: #b8ccbc;
         }
       `}</style>
+
+      {/* ── TOAST NOTIFICATION COMPONENT ── */}
+      <div className={`svsd-toast ${toast.type} ${toast.visible ? 'show' : ''}`}>
+        <div className="svsd-toast-message">
+          {toast.type === 'success' ? (
+            <svg className="svsd-toast-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          ) : (
+            <svg className="svsd-toast-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          )}
+          {toast.message}
+        </div>
+        <div className="svsd-toast-bar-wrap">
+          <div className="svsd-toast-bar"></div>
+        </div>
+      </div>
 
       <div className="svsbh-root">
         <div className="svsbh-card">

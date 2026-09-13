@@ -8,20 +8,34 @@ export default function SVSLogin() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
- const handleLogin = async (e) => {
+  // ── Toast Notification State ──
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
+
+  const showToast = (message, type = 'success') => {
+    setToast({ visible: true, message, type });
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, visible: false }));
+    }, 3500);
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, { email, password });
       if (res.data.success) {
-        // We now save the secure token instead of just the word 'true'
         localStorage.setItem('svs_token', res.data.token);
         
-        // ❌ OLD: navigate('/admin/home');
-        // ✅ NEW: Navigate to the correct dashboard route
-        navigate('/admin/dashboard'); 
+        showToast("Login successful! Redirecting...", "success");
+        
+        // Short delay to allow the user to see the success notification
+        setTimeout(() => {
+          navigate('/admin/dashboard'); 
+        }, 1200);
       }
     } catch (err) {
-      alert("Invalid login details.");
+      // Catch specific errors from the backend if available
+      const errorMsg = err.response?.data?.error || "Invalid login details.";
+      showToast(errorMsg, "error");
     }
   };
 
@@ -31,6 +45,65 @@ export default function SVSLogin() {
         @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* ── TOAST NOTIFICATION CSS ── */
+        .svsd-toast {
+          position: fixed;
+          bottom: 30px;
+          left: 30px;
+          background: #111d14;
+          color: white;
+          padding: 16px 20px;
+          border-radius: 8px;
+          box-shadow: 0 10px 40px rgba(17,29,20,0.4);
+          z-index: 1000;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          transform: translateX(-150%);
+          transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+          overflow: hidden;
+          min-width: 320px;
+        }
+        .svsd-toast.show {
+          transform: translateX(0);
+        }
+        .svsd-toast-message {
+          font-weight: 500;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .svsd-toast-bar-wrap {
+          height: 4px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 2px;
+          width: 100%;
+          overflow: hidden;
+        }
+        .svsd-toast-bar {
+          height: 100%;
+          background: #1bba6b;
+          width: 100%;
+          transform-origin: left;
+        }
+        .svsd-toast.error .svsd-toast-bar {
+          background: #e74c3c;
+        }
+        .svsd-toast.error .svsd-toast-icon {
+          color: #e74c3c;
+        }
+        .svsd-toast.success .svsd-toast-icon {
+          color: #1bba6b;
+        }
+        @keyframes shrinkToastBar {
+          from { width: 100%; }
+          to { width: 0%; }
+        }
+        .svsd-toast.show .svsd-toast-bar {
+          animation: shrinkToastBar 3.5s linear forwards;
+        }
 
         .svsl-root {
           min-height: 100vh;
@@ -409,6 +482,21 @@ export default function SVSLogin() {
           opacity: 0.75;
         }
       `}</style>
+
+      {/* ── TOAST NOTIFICATION COMPONENT ── */}
+      <div className={`svsd-toast ${toast.type} ${toast.visible ? 'show' : ''}`}>
+        <div className="svsd-toast-message">
+          {toast.type === 'success' ? (
+            <svg className="svsd-toast-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          ) : (
+            <svg className="svsd-toast-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          )}
+          {toast.message}
+        </div>
+        <div className="svsd-toast-bar-wrap">
+          <div className="svsd-toast-bar"></div>
+        </div>
+      </div>
 
       <div className="svsl-root">
 
