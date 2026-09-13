@@ -15,8 +15,6 @@ const CROPS = [
   "Wheat"
 ];
 
-// ── Hardcoded PDF Leaflet Links for the 7 Crops ──
-// Replace the duplicate placeholder links with your actual Cloudinary PDF URLs
 const CROP_LEAFLETS = {
   "Bajra": "https://drive.google.com/file/d/1svp2DvUH5tD4Ovby3_uzXp6sgbqXHCiO/view?usp=sharing",
   "Cotton": "https://drive.google.com/file/d/1JSYQAu_kYYeFwzArwWMrSAt1VPNGQvOW/view?usp=sharing",
@@ -39,6 +37,10 @@ const ADDRESS_OPTIONS = [
   {
     label: "Medchal Facility",
     value: "Ganga Kaveri Seeds pvt Ltd\nc/o Sunanda Farm,\nS no: 115/116,\nKandlakoya,\nMedchal,malkajrigi,\nNear by Oxygen Park OPP ,\npin no :501401"
+  },
+  {
+    label: "Gajwel Facility",
+    value: "Gangakaveri seeds Pvt.Ltd ,\nVil : Kodakandla,\nMndl : Gajwel,\nDist : Siddipet,\nPincode : 502312"
   }
 ];
 
@@ -56,6 +58,16 @@ export default function SVSAdminDashboard() {
 
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
+  
+  // ── NEW: Toast Notification State ──
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
+
+  const showToast = (message, type = 'success') => {
+    setToast({ visible: true, message, type });
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, visible: false }));
+    }, 3500);
+  };
 
   useEffect(() => {
     const mrpVal = parseFloat(String(formData.mrp).replace(/[^0-9.]/g, ''));
@@ -100,8 +112,13 @@ export default function SVSAdminDashboard() {
     const selectedLeaflet = CROP_LEAFLETS[formData.productName] || "No Leaflet Provided";
     data.append('leaflet', selectedLeaflet);
 
+    // Grab JWT Token for the request
+    const token = localStorage.getItem('svs_token');
+
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/admin/generate`, data);
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/admin/generate`, data, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       
       const totalLabels = response.data.labelNumbers.length;
       setProgress({ current: 0, total: totalLabels }); 
@@ -110,10 +127,18 @@ export default function SVSAdminDashboard() {
         setProgress({ current: currentCount, total: totalLabels });
       });
 
-      alert("Batch created successfully!");
-      window.location.reload();
+      // Show success notification instead of alert
+      showToast("Batch generated and secured successfully!", "success");
+      
+      // Delay reload to let the user see the notification
+      setTimeout(() => {
+        window.location.reload();
+      }, 3500);
+
     } catch (err) {
-      alert("Error generating batch. Please check the backend.");
+      // Capture the exact backend error message if available
+      const errorMsg = err.response?.data?.error || "Error generating batch. Please check connection.";
+      showToast(errorMsg, "error");
       setLoading(false);
     }
   };
@@ -137,6 +162,7 @@ export default function SVSAdminDashboard() {
           --svs-text:        #111d14;
           --svs-text-mid:    #3d5245;
           --svs-text-muted:  #7a9180;
+          --svs-danger:      #e74c3c;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -147,6 +173,66 @@ export default function SVSAdminDashboard() {
           min-height: 100vh; padding-bottom: 80px; -webkit-font-smoothing: antialiased;
         }
 
+        /* ── TOAST NOTIFICATION CSS ── */
+        .svsd-toast {
+          position: fixed;
+          bottom: 30px;
+          left: 30px;
+          background: var(--svs-ink);
+          color: white;
+          padding: 16px 20px;
+          border-radius: 8px;
+          box-shadow: 0 10px 40px rgba(17,29,20,0.4);
+          z-index: 1000;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          transform: translateX(-150%);
+          transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+          overflow: hidden;
+          min-width: 320px;
+        }
+        .svsd-toast.show {
+          transform: translateX(0);
+        }
+        .svsd-toast-message {
+          font-weight: 500;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .svsd-toast-bar-wrap {
+          height: 4px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 2px;
+          width: 100%;
+          overflow: hidden;
+        }
+        .svsd-toast-bar {
+          height: 100%;
+          background: var(--svs-leaf);
+          width: 100%;
+          transform-origin: left;
+        }
+        .svsd-toast.error .svsd-toast-bar {
+          background: var(--svs-danger);
+        }
+        .svsd-toast.error .svsd-toast-icon {
+          color: var(--svs-danger);
+        }
+        .svsd-toast.success .svsd-toast-icon {
+          color: var(--svs-leaf);
+        }
+        @keyframes shrinkToastBar {
+          from { width: 100%; }
+          to { width: 0%; }
+        }
+        .svsd-toast.show .svsd-toast-bar {
+          animation: shrinkToastBar 3.5s linear forwards;
+        }
+
+        /* ── EXISTING STYLES ── */
         .svsd-navbar {
           background: var(--svs-ink); position: sticky; top: 0; z-index: 200;
           box-shadow: 0 1px 0 rgba(27,186,107,0.15), 0 4px 24px rgba(0,0,0,0.35);
@@ -220,6 +306,21 @@ export default function SVSAdminDashboard() {
           transition: width 0.3s ease; box-shadow: 0 0 12px rgba(27,186,107,0.6);
         }
       `}</style>
+
+      {/* ── TOAST NOTIFICATION COMPONENT ── */}
+      <div className={`svsd-toast ${toast.type} ${toast.visible ? 'show' : ''}`}>
+        <div className="svsd-toast-message">
+          {toast.type === 'success' ? (
+            <svg className="svsd-toast-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          ) : (
+            <svg className="svsd-toast-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          )}
+          {toast.message}
+        </div>
+        <div className="svsd-toast-bar-wrap">
+          <div className="svsd-toast-bar"></div>
+        </div>
+      </div>
 
       <div className="svsd-root">
         <nav className="svsd-navbar">
