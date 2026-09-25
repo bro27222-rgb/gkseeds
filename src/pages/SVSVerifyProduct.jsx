@@ -479,15 +479,23 @@ export default function SVSVerifyProduct() {
             <Row label="Unit Sale Price"   value={data.unitSalePrice} />
             <Row label="Net Quantity"      value={data.netQty} />
             <div className="svs-vp-section-rule" />
-            <Row label="Plant Address"     value={data.plantAddress} />
             <Row 
-              label="Produced & Marketed By" 
+              label="Office Address" 
               value={
                 <>
                   Ganga Kaveri Seeds Pvt. Ltd.<br />
                   1406, Babukhan Estate<br />
                   Basheer Bagh, Hyderabad<br />
                   500001, Telangana
+                </>
+              } 
+            />
+            <Row label="Plant Address"     value={data.plantAddress} />
+            <Row 
+              label="Produced & Marketed By" 
+              value={
+                <>
+                  Ganga Kaveri Seeds Pvt. Ltd.
                 </>
               } 
             />
