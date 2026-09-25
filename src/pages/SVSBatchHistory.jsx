@@ -52,7 +52,6 @@ const SVSBatchHistory = () => {
   }, []);
 
   const handleLoadMore = () => {
-    // Fetch the next 40 items
     fetchStats(skip, 40, false);
   };
 
@@ -64,7 +63,6 @@ const SVSBatchHistory = () => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       showToast("Batch deleted successfully", "success");
-      // Reset and fetch from top
       fetchStats(0, 20, true);
     } catch (err) {
       const errorMsg = err.response?.data?.error || "Failed to delete batch";
@@ -87,7 +85,6 @@ const SVSBatchHistory = () => {
       });
       showToast("Product updated successfully!", "success");
       setEditProduct(null);
-      // Reset and fetch from top to show changes
       fetchStats(0, skip || 20, true);
     } catch (err) {
       const errorMsg = err.response?.data?.error || "Failed to update product";
@@ -95,7 +92,6 @@ const SVSBatchHistory = () => {
     }
   };
 
-  // Dedicated function to fetch ALL records specifically for the Excel Export
   const downloadExcel = async () => {
     try {
       showToast("Compiling all records... Please wait.", "success");
@@ -128,7 +124,6 @@ const SVSBatchHistory = () => {
     }
   };
 
-  // Group the flat products array by date on the frontend
   const groupedStatsMap = products.reduce((acc, p) => {
     const date = p.dateOfPackaging || "Unknown Date";
     if (!acc[date]) acc[date] = { _id: date, products: [] };
@@ -136,7 +131,6 @@ const SVSBatchHistory = () => {
     return acc;
   }, {});
   
-  // Convert map to array and maintain newest-first sorting
   const stats = Object.values(groupedStatsMap).sort((a, b) => new Date(b._id) - new Date(a._id));
 
   return (
@@ -214,7 +208,7 @@ const SVSBatchHistory = () => {
         .svsbh-day-line { flex: 1; height: 1px; background: linear-gradient(90deg, #d4e0d8, transparent); }
 
         .svsbh-table-wrap { border-radius: 7px; border: 1px solid #d4e0d8; overflow-x: auto; box-shadow: 0 1px 4px rgba(17,29,20,0.04); }
-        .svsbh-table { width: 100%; border-collapse: collapse; text-align: left; min-width: 1000px; }
+        .svsbh-table { width: 100%; border-collapse: collapse; text-align: left; min-width: 1050px; }
         .svsbh-thead tr { background: #f2f6f3; }
         .svsbh-th { padding: 11px 16px; font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #3d5245; border-bottom: 2px solid #d4e0d8; white-space: nowrap; }
         .svsbh-tr { border-bottom: 1px solid #eaf0ec; transition: background 0.10s; }
@@ -321,6 +315,7 @@ const SVSBatchHistory = () => {
                       <table className="svsbh-table">
                         <thead className="svsbh-thead">
                           <tr>
+                            <th className="svsbh-th">Date</th>
                             <th className="svsbh-th">Lot No</th>
                             <th className="svsbh-th">Crop Name</th>
                             <th className="svsbh-th">Variety</th>
@@ -335,11 +330,12 @@ const SVSBatchHistory = () => {
                         <tbody>
                           {day.products.map((p, i) => (
                             <tr key={i} className="svsbh-tr">
+                              <td className="svsbh-td svsbh-td-muted">{p.dateOfPackaging || day._id}</td>
                               <td className="svsbh-td svsbh-td-muted">{p.packedLotNumber || "N/A"}</td>
                               <td className="svsbh-td svsbh-td-bold">{p.cropName || "Unknown"}</td>
                               <td className="svsbh-td">{p.packedVariety || "Unknown"}</td>
                               <td className="svsbh-td svsbh-td-muted" style={{ color: '#1bba6b' }}>
-                                {p.labelRange || "Random"}
+                                {p.labelRange || "Legacy / Random"}
                               </td>
                               <td className="svsbh-td">
                                 <span className="svsbh-bag-pill">{p.quantity || 0}</span>
