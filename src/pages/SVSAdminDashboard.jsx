@@ -50,7 +50,6 @@ export default function SVSAdminDashboard() {
     productName: '', variety: '', packedLotNumber: '',
     dateOfTesting: '', packagingDate: '', dateOfExpiry: '',
     mrp: '', totalWeight: '', netQty: '', unitSalePrice: '',
-    packedAt: ADDRESS_OPTIONS[0].value,
     plantAddress: ADDRESS_OPTIONS[1].value,
     producedBy: 'Ganga Kaveri Seeds Pvt. Ltd.',
     quantity: 10
@@ -59,7 +58,6 @@ export default function SVSAdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   
-  // ── NEW: Toast Notification State ──
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
 
   const showToast = (message, type = 'success') => {
@@ -112,7 +110,6 @@ export default function SVSAdminDashboard() {
     const selectedLeaflet = CROP_LEAFLETS[formData.productName] || "No Leaflet Provided";
     data.append('leaflet', selectedLeaflet);
 
-    // Grab JWT Token for the request
     const token = localStorage.getItem('svs_token');
 
     try {
@@ -127,16 +124,13 @@ export default function SVSAdminDashboard() {
         setProgress({ current: currentCount, total: totalLabels });
       });
 
-      // Show success notification instead of alert
       showToast("Batch generated and secured successfully!", "success");
       
-      // Delay reload to let the user see the notification
       setTimeout(() => {
         window.location.reload();
       }, 3500);
 
     } catch (err) {
-      // Capture the exact backend error message if available
       const errorMsg = err.response?.data?.error || "Error generating batch. Please check connection.";
       showToast(errorMsg, "error");
       setLoading(false);
@@ -173,7 +167,6 @@ export default function SVSAdminDashboard() {
           min-height: 100vh; padding-bottom: 80px; -webkit-font-smoothing: antialiased;
         }
 
-        /* ── TOAST NOTIFICATION CSS ── */
         .svsd-toast {
           position: fixed;
           bottom: 30px;
@@ -232,7 +225,6 @@ export default function SVSAdminDashboard() {
           animation: shrinkToastBar 3.5s linear forwards;
         }
 
-        /* ── EXISTING STYLES ── */
         .svsd-navbar {
           background: var(--svs-ink); position: sticky; top: 0; z-index: 200;
           box-shadow: 0 1px 0 rgba(27,186,107,0.15), 0 4px 24px rgba(0,0,0,0.35);
@@ -411,25 +403,6 @@ export default function SVSAdminDashboard() {
 
                 <div className="svsd-sec svsd-sec-gap"><span className="svsd-sec-title">Facility & Logistics</span></div>
                 
-                <div className="svsd-field">
-                  <label className="svsd-label">Packed At</label>
-                  <div className="svsd-select-wrap">
-                    <select 
-                      className="svsd-input" 
-                      name="packedAt" 
-                      value={getAddressIndex(formData.packedAt)} 
-                      onChange={(e) => setFormData({...formData, packedAt: ADDRESS_OPTIONS[e.target.value].value})} 
-                      required
-                    >
-                      {ADDRESS_OPTIONS.map((opt, i) => <option key={i} value={i}>{opt.label}</option>)}
-                    </select>
-                  </div>
-                </div>
-                <div className="svsd-field">
-                  <label className="svsd-label">Packed At Preview</label>
-                  <textarea className="svsd-textarea" style={{ height: '90px', background: '#f0f4f2', color: '#5a6e61' }} value={formData.packedAt} readOnly />
-                </div>
-
                 <div className="svsd-field" style={{ marginTop: '20px' }}>
                   <label className="svsd-label">Plant Address</label>
                   <div className="svsd-select-wrap">

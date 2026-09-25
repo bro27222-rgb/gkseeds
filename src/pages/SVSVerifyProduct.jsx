@@ -14,7 +14,6 @@ export default function SVSVerifyProduct() {
     return `${day}-${month}-${year}`;
   };
 
-  // Automatically cleans up the database number and formats it as Rs. XXX.00/-
   const formatMRP = (val) => {
     if (!val) return '';
     const num = parseFloat(String(val).replace(/[^0-9.]/g, ''));
@@ -28,7 +27,6 @@ export default function SVSVerifyProduct() {
       .catch(() => setError(true));
   }, [labelNumber]);
 
-  // ── Error State ──
   if (error) return (
     <>
       <style>{`
@@ -87,7 +85,6 @@ export default function SVSVerifyProduct() {
     </>
   );
 
-  // ── Loading State ──
   if (!data) return (
     <>
       <style>{`
@@ -161,7 +158,6 @@ export default function SVSVerifyProduct() {
     </>
   );
 
-  // ── Verified State ──
   return (
     <>
       <style>{`
@@ -169,7 +165,6 @@ export default function SVSVerifyProduct() {
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* ── ROOT ── */
         .svs-vp-root {
           min-height: 100vh;
           background: #0D1F0F;
@@ -182,7 +177,6 @@ export default function SVSVerifyProduct() {
           -webkit-font-smoothing: antialiased;
         }
 
-        /* ── CARD ── */
         .svs-vp-card {
           position: relative;
           max-width: 460px;
@@ -198,7 +192,6 @@ export default function SVSVerifyProduct() {
             0 8px 24px rgba(0,0,0,0.35);
         }
 
-        /* Outer gold frame lines — decorative pseudo-border */
         .svs-vp-card::before {
           content: '';
           position: absolute; inset: 8px;
@@ -208,7 +201,6 @@ export default function SVSVerifyProduct() {
           z-index: 10;
         }
 
-        /* ── TOP ORNAMENT BAR ── */
         .svs-vp-top {
           height: 6px;
           background: linear-gradient(90deg,
@@ -222,7 +214,6 @@ export default function SVSVerifyProduct() {
           );
         }
 
-        /* ── HEADER ── */
         .svs-vp-header {
           text-align: center;
           padding: 32px 28px 26px;
@@ -231,7 +222,6 @@ export default function SVSVerifyProduct() {
           position: relative;
         }
 
-        /* Corner ornaments */
         .svs-vp-header::before,
         .svs-vp-header::after {
           content: '✦';
@@ -282,7 +272,6 @@ export default function SVSVerifyProduct() {
           margin-top: 3px;
         }
 
-        /* Gold rule divider */
         .svs-vp-divider {
           display: flex; align-items: center; gap: 10px;
           margin: 16px auto 0;
@@ -326,7 +315,6 @@ export default function SVSVerifyProduct() {
           flex-shrink: 0; line-height: 1;
         }
 
-        /* ── MANIFEST TABLE ── */
         .svs-vp-table {
           display: flex; flex-direction: column;
         }
@@ -338,7 +326,6 @@ export default function SVSVerifyProduct() {
         }
         .svs-vp-row:last-child { border-bottom: none; }
 
-        /* Subtle left accent on hover */
         .svs-vp-row::before {
           content: '';
           position: absolute; left: 0; top: 0; bottom: 0; width: 0;
@@ -379,7 +366,6 @@ export default function SVSVerifyProduct() {
           color: #0D1F0F; letter-spacing: 0.3px;
         }
         
-        /* Subtle but significant MRP styling */
         .svs-vp-val.mrp-large {
           font-family: 'DM Sans', sans-serif;
           font-weight: 500; 
@@ -387,14 +373,12 @@ export default function SVSVerifyProduct() {
           color: #0D1F0F; 
         }
 
-        /* Section divider between rows groups */
         .svs-vp-section-rule {
           height: 1px;
           background: linear-gradient(90deg, rgba(201,150,42,0.08), rgba(201,150,42,0.35), rgba(201,150,42,0.08));
           margin: 0;
         }
 
-        /* ── PDF BUTTON AREA ── */
         .svs-vp-pdf-area {
           padding: 22px 24px 26px;
           background: linear-gradient(180deg, rgba(201,150,42,0.04) 0%, rgba(201,150,42,0.07) 100%);
@@ -428,7 +412,6 @@ export default function SVSVerifyProduct() {
           box-shadow: 0 6px 28px rgba(0,0,0,0.3), 0 0 0 1px rgba(201,150,42,0.2), inset 0 1px 0 rgba(201,150,42,0.15);
         }
 
-        /* ── BOTTOM BAR ── */
         .svs-vp-bottom {
           height: 6px;
           background: linear-gradient(90deg,
@@ -442,7 +425,6 @@ export default function SVSVerifyProduct() {
           );
         }
 
-        /* ── FOOTER ── */
         .svs-vp-footer {
           text-align: center;
           margin-top: 24px;
@@ -458,7 +440,6 @@ export default function SVSVerifyProduct() {
         <div className="svs-vp-card">
           <div className="svs-vp-top" />
 
-          {/* HEADER */}
           <div className="svs-vp-header">
             <div className="svs-vp-emblem">
               <img
@@ -481,7 +462,6 @@ export default function SVSVerifyProduct() {
             </div>
           </div>
 
-          {/* DETAILS */}
           <div className="svs-vp-table">
             <Row label="Label Number"      value={data.labelNumber}               bold />
             <Row label="Crop Name"         value={data.cropName}                  bold />
@@ -494,18 +474,25 @@ export default function SVSVerifyProduct() {
             <Row label="Date of Expiry"    value={formatDate(data.dateOfExpiry)} />
             <div className="svs-vp-section-rule" />
             
-            {/* Updated MRP Row with formatter and isMrp flag */}
             <Row label="MRP"               value={formatMRP(data.mrp)}            isMrp />
             
             <Row label="Unit Sale Price"   value={data.unitSalePrice} />
             <Row label="Net Quantity"      value={data.netQty} />
             <div className="svs-vp-section-rule" />
-            <Row label="Office Address"    value={data.packedAt} />
             <Row label="Plant Address"     value={data.plantAddress} />
-            <Row label="Produced & Marketed By"       value={data.producedBy} />
+            <Row 
+              label="Produced & Marketed By" 
+              value={
+                <>
+                  Ganga Kaveri Seeds Pvt. Ltd.<br />
+                  1406, Babukhan Estate<br />
+                  Basheer Bagh, Hyderabad<br />
+                  500001, Telangana
+                </>
+              } 
+            />
           </div>
 
-          {/* PDF */}
           <div className="svs-vp-pdf-area">
             <a href={data.leafletUrl} target="_blank" rel="noreferrer" className="svs-vp-pdf-btn">
               📄 View Product Leaflet (PDF)
@@ -521,7 +508,6 @@ export default function SVSVerifyProduct() {
   );
 }
 
-// Updated Row component to support the custom MRP styling
 const Row = ({ label, value, bold, isMrp }) => {
   let valClass = "svs-vp-val";
   if (isMrp) valClass += " mrp-large";
