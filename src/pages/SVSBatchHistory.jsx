@@ -32,7 +32,7 @@ const SVSBatchHistory = () => {
   
   // Modal states
   const [editProduct, setEditProduct] = useState(null);
-  const [deleteConfirmId, setDeleteConfirmId] = useState(null); // Custom confirmation popup
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   // ── Toast Notification State ──
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
@@ -78,12 +78,10 @@ const SVSBatchHistory = () => {
     fetchStats(skip, 40, false);
   };
 
-  // Triggers the custom popup
   const promptDelete = (productId) => {
     setDeleteConfirmId(productId);
   };
 
-  // Executes the actual deletion
   const executeDelete = async () => {
     if (!deleteConfirmId) return;
     try {
@@ -353,7 +351,6 @@ const SVSBatchHistory = () => {
                             <th className="svsbh-th">Label Range</th>
                             <th className="svsbh-th">Bags</th>
                             <th className="svsbh-th">MRP</th>
-                            <th className="svsbh-th">USP</th>
                             <th className="svsbh-th">Net Qty</th>
                             <th className="svsbh-th">Actions</th>
                           </tr>
@@ -372,7 +369,6 @@ const SVSBatchHistory = () => {
                                 <span className="svsbh-bag-pill">{p.quantity || 0}</span>
                               </td>
                               <td className="svsbh-td">{p.mrp || "N/A"}</td>
-                              <td className="svsbh-td">{p.unitSalePrice || "N/A"}</td>
                               <td className="svsbh-td">{p.netQty || "N/A"}</td>
                               <td className="svsbh-td">
                                 <div className="svsbh-actions">
@@ -480,7 +476,6 @@ const SVSBatchHistory = () => {
                   </div>
                   <div>
                     <label className="svsbh-modal-label">Unit Sale Price (Auto-calculated)</label>
-                    {/* USP IS NOW READ ONLY */}
                     <input className="svsbh-modal-input" value={editProduct.unitSalePrice || ''} readOnly />
                   </div>
                 </div>
