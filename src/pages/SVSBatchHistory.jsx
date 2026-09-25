@@ -153,7 +153,6 @@ const SVSBatchHistory = () => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
-      // Include EVERYTHING from the database model
       const rows = data.products.map(p => ({
         "Packaging Date": p.dateOfPackaging || "N/A",
         "Testing Date": p.dateOfTesting || "N/A",
@@ -354,7 +353,6 @@ const SVSBatchHistory = () => {
                             <th className="svsbh-th">Label Range</th>
                             <th className="svsbh-th">Bags</th>
                             <th className="svsbh-th">MRP</th>
-                            <th className="svsbh-th">USP</th>
                             <th className="svsbh-th">Net Qty</th>
                             <th className="svsbh-th">Actions</th>
                           </tr>
@@ -373,7 +371,6 @@ const SVSBatchHistory = () => {
                                 <span className="svsbh-bag-pill">{p.quantity || 0}</span>
                               </td>
                               <td className="svsbh-td">{p.mrp || "N/A"}</td>
-                              <td className="svsbh-td">{p.unitSalePrice || "N/A"}</td>
                               <td className="svsbh-td">{p.netQty || "N/A"}</td>
                               <td className="svsbh-td">
                                 <div className="svsbh-actions">
