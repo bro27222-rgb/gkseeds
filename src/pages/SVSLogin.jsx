@@ -6,9 +6,9 @@ import logo from '../assets/logo.png';
 export default function SVSLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isAuthenticating, setIsAuthenticating] = useState(false); // Loading state
   const navigate = useNavigate();
 
-  // ── Toast Notification State ──
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
 
   const showToast = (message, type = 'success') => {
@@ -20,22 +20,20 @@ export default function SVSLogin() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsAuthenticating(true); // Start loading spinner
     try {
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, { email, password });
       if (res.data.success) {
         localStorage.setItem('svs_token', res.data.token);
-        
         showToast("Login successful! Redirecting...", "success");
-        
-        // Short delay to allow the user to see the success notification
         setTimeout(() => {
           navigate('/admin/dashboard'); 
         }, 1200);
       }
     } catch (err) {
-      // Catch specific errors from the backend if available
       const errorMsg = err.response?.data?.error || "Invalid login details.";
       showToast(errorMsg, "error");
+      setIsAuthenticating(false); // Stop loading spinner on error
     }
   };
 
@@ -88,22 +86,11 @@ export default function SVSLogin() {
           width: 100%;
           transform-origin: left;
         }
-        .svsd-toast.error .svsd-toast-bar {
-          background: #e74c3c;
-        }
-        .svsd-toast.error .svsd-toast-icon {
-          color: #e74c3c;
-        }
-        .svsd-toast.success .svsd-toast-icon {
-          color: #1bba6b;
-        }
-        @keyframes shrinkToastBar {
-          from { width: 100%; }
-          to { width: 0%; }
-        }
-        .svsd-toast.show .svsd-toast-bar {
-          animation: shrinkToastBar 3.5s linear forwards;
-        }
+        .svsd-toast.error .svsd-toast-bar { background: #e74c3c; }
+        .svsd-toast.error .svsd-toast-icon { color: #e74c3c; }
+        .svsd-toast.success .svsd-toast-icon { color: #1bba6b; }
+        @keyframes shrinkToastBar { from { width: 100%; } to { width: 0%; } }
+        .svsd-toast.show .svsd-toast-bar { animation: shrinkToastBar 3.5s linear forwards; }
 
         .svsl-root {
           min-height: 100vh;
@@ -117,282 +104,94 @@ export default function SVSLogin() {
 
         /* ── LEFT PANEL ── */
         .svsl-left {
-          display: none;
-          flex: 1;
-          background: #111d14;
-          position: relative;
-          overflow: hidden;
-          align-items: center;
-          justify-content: center;
-          flex-direction: column;
-          padding: 60px 56px;
+          display: none; flex: 1; background: #111d14; position: relative; overflow: hidden;
+          align-items: center; justify-content: center; flex-direction: column; padding: 60px 56px;
         }
         @media (min-width: 900px) { .svsl-left { display: flex; } }
 
-        /* Field-row scan lines — the signature element */
         .svsl-left::before {
-          content: '';
-          position: absolute; inset: 0;
-          background-image: repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 28px,
-            rgba(27,186,107,0.055) 28px,
-            rgba(27,186,107,0.055) 29px
-          );
+          content: ''; position: absolute; inset: 0;
+          background-image: repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(27,186,107,0.055) 28px, rgba(27,186,107,0.055) 29px);
           pointer-events: none;
         }
-
-        /* Top-left glow bloom */
         .svsl-left::after {
-          content: '';
-          position: absolute;
-          top: 0; left: 0;
-          width: 380px; height: 380px;
+          content: ''; position: absolute; top: 0; left: 0; width: 380px; height: 380px;
           background: radial-gradient(ellipse at top left, rgba(27,186,107,0.18) 0%, transparent 65%);
           pointer-events: none;
         }
 
-        /* Concentric rings — precision target aesthetic */
-        .svsl-left-rings {
-          position: absolute;
-          top: 50%; left: 50%;
-          transform: translate(-50%, -50%);
-          pointer-events: none;
-        }
-        .svsl-ring {
-          position: absolute;
-          border-radius: 50%;
-          top: 50%; left: 50%;
-          transform: translate(-50%, -50%);
-        }
+        .svsl-left-rings { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+        .svsl-ring { position: absolute; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); }
         .svsl-ring-1 { width: 200px; height: 200px; border: 1px solid rgba(27,186,107,0.22); }
         .svsl-ring-2 { width: 360px; height: 360px; border: 1px solid rgba(27,186,107,0.11); }
         .svsl-ring-3 { width: 520px; height: 520px; border: 1px solid rgba(27,186,107,0.055); }
         .svsl-ring-4 { width: 700px; height: 700px; border: 1px solid rgba(27,186,107,0.025); }
 
-        .svsl-left-content {
-          position: relative;
-          z-index: 1;
-          text-align: center;
-        }
+        .svsl-left-content { position: relative; z-index: 1; text-align: center; }
 
-        /* Logo emblem — square badge, not a circle */
         .svsl-left-emblem {
-          width: 90px; height: 90px;
-          border-radius: 14px;
-          background: rgba(27,186,107,0.10);
-          border: 1px solid rgba(27,186,107,0.32);
-          box-shadow:
-            0 0 0 6px rgba(27,186,107,0.05),
-            0 24px 60px rgba(0,0,0,0.45),
-            inset 0 1px 0 rgba(27,186,107,0.14);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 32px;
-          overflow: hidden;
-          padding: 14px;
+          width: 90px; height: 90px; border-radius: 14px; background: rgba(27,186,107,0.10); border: 1px solid rgba(27,186,107,0.32);
+          box-shadow: 0 0 0 6px rgba(27,186,107,0.05), 0 24px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(27,186,107,0.14);
+          display: flex; align-items: center; justify-content: center; margin: 0 auto 32px; overflow: hidden; padding: 14px;
         }
         .svsl-left-emblem img { width: 100%; height: 100%; object-fit: contain; filter: brightness(1.1); }
-
-        .svsl-left-name {
-          font-family: 'DM Serif Display', serif;
-          font-size: 26px;
-          font-weight: 400;
-          color: #fff;
-          letter-spacing: -0.4px;
-          line-height: 1.2;
-          margin-bottom: 7px;
-        }
-        .svsl-left-pvt {
-          font-family: 'Inter', sans-serif;
-          font-size: 10px;
-          font-weight: 600;
-          letter-spacing: 3.5px;
-          text-transform: uppercase;
-          color: #1bba6b;
-          margin-bottom: 36px;
-        }
-        .svsl-left-divider {
-          width: 40px;
-          height: 2px;
-          background: #1bba6b;
-          margin: 0 auto 36px;
-          border-radius: 1px;
-        }
-        .svsl-left-tagline {
-          font-family: 'DM Serif Display', serif;
-          font-style: italic;
-          font-size: 18px;
-          color: rgba(255,255,255,0.40);
-          line-height: 1.75;
-          max-width: 280px;
-          letter-spacing: 0.1px;
-        }
-        .svsl-left-since {
-          margin-top: 52px;
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 10px;
-          letter-spacing: 2.5px;
-          text-transform: uppercase;
-          color: rgba(27,186,107,0.42);
-        }
+        .svsl-left-name { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; color: #fff; letter-spacing: -0.4px; line-height: 1.2; margin-bottom: 7px; }
+        .svsl-left-pvt { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 3.5px; text-transform: uppercase; color: #1bba6b; margin-bottom: 36px; }
+        .svsl-left-divider { width: 40px; height: 2px; background: #1bba6b; margin: 0 auto 36px; border-radius: 1px; }
+        .svsl-left-tagline { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 18px; color: rgba(255,255,255,0.40); line-height: 1.75; max-width: 280px; letter-spacing: 0.1px; }
+        .svsl-left-since { margin-top: 52px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(27,186,107,0.42); }
 
         /* ── RIGHT PANEL ── */
         .svsl-right {
+          width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+          background: #ffffff; position: relative; padding: 40px 24px;
+        }
+        @media (min-width: 900px) { .svsl-right { width: 460px; min-width: 460px; flex-shrink: 0; } }
+
+        .svsl-right::before {
+          content: ''; position: absolute; inset: 0;
+          background-image: radial-gradient(rgba(17,29,20,0.07) 1px, transparent 1px);
+          background-size: 24px 24px; pointer-events: none;
+        }
+
+        .svsl-form-wrap { position: relative; z-index: 1; width: 100%; max-width: 380px; }
+
+        .svsl-mobile-brand { text-align: center; margin-bottom: 40px; }
+        @media (min-width: 900px) { .svsl-mobile-brand { display: none; } }
+        .svsl-mobile-emblem {
+          width: 60px; height: 60px; border-radius: 10px; background: rgba(27,186,107,0.07); border: 1px solid rgba(27,186,107,0.22);
+          box-shadow: 0 4px 20px rgba(17,29,20,0.10); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; overflow: hidden; padding: 10px;
+        }
+        .svsl-mobile-emblem img { width: 100%; height: 100%; object-fit: contain; }
+        .svsl-mobile-name { font-family: 'DM Serif Display', serif; font-size: 18px; font-weight: 400; color: #111d14; letter-spacing: -0.2px; }
+        .svsl-mobile-pvt { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #1bba6b; margin-top: 4px; }
+
+        .svsl-heading { margin-bottom: 32px; }
+        .svsl-heading-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; color: #1bba6b; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+        .svsl-heading-eyebrow::before { content: ''; display: inline-block; width: 22px; height: 2px; background: #1bba6b; border-radius: 1px; flex-shrink: 0; }
+        .svsl-heading-title { font-family: 'DM Serif Display', serif; font-size: 38px; font-weight: 400; color: #111d14; line-height: 1.12; letter-spacing: -0.9px; margin-bottom: 12px; }
+        .svsl-heading-sub { font-family: 'Inter', sans-serif; font-size: 12px; color: #7a9180; font-weight: 400; letter-spacing: 0.1px; line-height: 1.55; }
+
+        .svsl-rule { height: 1px; background: #e6ede8; margin-bottom: 28px; }
+
+        .svsl-field { margin-bottom: 20px; }
+        .svsl-label { display: block; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: #3d5245; margin-bottom: 8px; }
+        .svsl-input-wrap { position: relative; }
+        .svsl-input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #7a9180; pointer-events: none; display: flex; align-items: center; justify-content: center; }
+        .svsl-input {
+          width: 100%; padding: 13px 14px 13px 42px; border: 1.5px solid #cdd9d0; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 14px;
+          color: #111d14; background: #f7faf8; outline: none; transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s; letter-spacing: 0px;
+        }
+        .svsl-input::placeholder { color: #aabcb2; font-weight: 400; font-size: 13px; }
+        .svsl-input:focus { border-color: #1bba6b; box-shadow: 0 0 0 3px rgba(27,186,107,0.12); background: #fff; }
+
+        /* Submit button and Loader */
+        .svsl-btn {
           width: 100%;
-          min-height: 100vh;
+          min-height: 48px;
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #ffffff;
-          position: relative;
-          padding: 40px 24px;
-        }
-        @media (min-width: 900px) {
-          .svsl-right { width: 460px; min-width: 460px; flex-shrink: 0; }
-        }
-
-        /* Subtle dot-grid on the right panel */
-        .svsl-right::before {
-          content: '';
-          position: absolute; inset: 0;
-          background-image: radial-gradient(rgba(17,29,20,0.07) 1px, transparent 1px);
-          background-size: 24px 24px;
-          pointer-events: none;
-        }
-
-        .svsl-form-wrap {
-          position: relative;
-          z-index: 1;
-          width: 100%;
-          max-width: 380px;
-        }
-
-        /* Mobile brand — small screens only */
-        .svsl-mobile-brand {
-          text-align: center;
-          margin-bottom: 40px;
-        }
-        @media (min-width: 900px) { .svsl-mobile-brand { display: none; } }
-
-        .svsl-mobile-emblem {
-          width: 60px; height: 60px;
-          border-radius: 10px;
-          background: rgba(27,186,107,0.07);
-          border: 1px solid rgba(27,186,107,0.22);
-          box-shadow: 0 4px 20px rgba(17,29,20,0.10);
-          display: flex; align-items: center; justify-content: center;
-          margin: 0 auto 14px;
-          overflow: hidden; padding: 10px;
-        }
-        .svsl-mobile-emblem img { width: 100%; height: 100%; object-fit: contain; }
-        .svsl-mobile-name {
-          font-family: 'DM Serif Display', serif;
-          font-size: 18px; font-weight: 400;
-          color: #111d14; letter-spacing: -0.2px;
-        }
-        .svsl-mobile-pvt {
-          font-family: 'Inter', sans-serif;
-          font-size: 10px; font-weight: 600;
-          letter-spacing: 3px; text-transform: uppercase;
-          color: #1bba6b; margin-top: 4px;
-        }
-
-        /* Form heading */
-        .svsl-heading { margin-bottom: 32px; }
-
-        .svsl-heading-eyebrow {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 10px;
-          font-weight: 500;
-          letter-spacing: 0.5px;
-          text-transform: uppercase;
-          color: #1bba6b;
-          margin-bottom: 14px;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-        .svsl-heading-eyebrow::before {
-          content: '';
-          display: inline-block;
-          width: 22px; height: 2px;
-          background: #1bba6b;
-          border-radius: 1px;
-          flex-shrink: 0;
-        }
-
-        .svsl-heading-title {
-          font-family: 'DM Serif Display', serif;
-          font-size: 38px;
-          font-weight: 400;
-          color: #111d14;
-          line-height: 1.12;
-          letter-spacing: -0.9px;
-          margin-bottom: 12px;
-        }
-        .svsl-heading-sub {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-          color: #7a9180;
-          font-weight: 400;
-          letter-spacing: 0.1px;
-          line-height: 1.55;
-        }
-
-        .svsl-rule {
-          height: 1px;
-          background: #e6ede8;
-          margin-bottom: 28px;
-        }
-
-        /* Fields */
-        .svsl-field { margin-bottom: 20px; }
-        .svsl-label {
-          display: block;
-          font-family: 'Inter', sans-serif;
-          font-size: 11px;
-          font-weight: 600;
-          letter-spacing: 0.6px;
-          text-transform: uppercase;
-          color: #3d5245;
-          margin-bottom: 8px;
-        }
-        .svsl-input-wrap { position: relative; }
-        .svsl-input-icon {
-          position: absolute;
-          left: 14px; top: 50%;
-          transform: translateY(-50%);
-          width: 16px; height: 16px;
-          color: #7a9180;
-          pointer-events: none;
-          display: flex; align-items: center; justify-content: center;
-        }
-        .svsl-input {
-          width: 100%;
-          padding: 13px 14px 13px 42px;
-          border: 1.5px solid #cdd9d0;
-          border-radius: 6px;
-          font-family: 'Inter', sans-serif;
-          font-size: 14px;
-          color: #111d14;
-          background: #f7faf8;
-          outline: none;
-          transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s;
-          letter-spacing: 0px;
-        }
-        .svsl-input::placeholder { color: #aabcb2; font-weight: 400; font-size: 13px; }
-        .svsl-input:focus {
-          border-color: #1bba6b;
-          box-shadow: 0 0 0 3px rgba(27,186,107,0.12);
-          background: #fff;
-        }
-
-        /* Submit button */
-        .svsl-btn {
-          width: 100%;
           margin-top: 8px;
           padding: 15px 24px;
           background: #111d14;
@@ -411,76 +210,45 @@ export default function SVSLogin() {
           overflow: hidden;
         }
         .svsl-btn::before {
-          content: '';
-          position: absolute;
-          top: 0; left: -100%;
-          width: 100%; height: 100%;
+          content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
           background: linear-gradient(90deg, transparent, rgba(27,186,107,0.16), transparent);
           transition: left 0.5s ease;
         }
-        .svsl-btn:hover::before { left: 100%; }
-        .svsl-btn:hover {
-          background: #1bba6b;
-          transform: translateY(-1px);
-          box-shadow: 0 8px 28px rgba(27,186,107,0.38);
+        .svsl-btn:hover:not(:disabled)::before { left: 100%; }
+        .svsl-btn:hover:not(:disabled) {
+          background: #1bba6b; transform: translateY(-1px); box-shadow: 0 8px 28px rgba(27,186,107,0.38);
         }
-        .svsl-btn:active { transform: translateY(0); }
+        .svsl-btn:active:not(:disabled) { transform: translateY(0); }
+        .svsl-btn:disabled {
+          opacity: 0.8;
+          cursor: not-allowed;
+        }
+
+        .svsl-spinner {
+          width: 18px;
+          height: 18px;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-top-color: #fff;
+          border-radius: 50%;
+          animation: svslSpin 0.8s linear infinite;
+        }
+        @keyframes svslSpin {
+          to { transform: rotate(360deg); }
+        }
 
         /* Security notice */
         .svsl-security {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-top: 20px;
-          padding: 10px 14px;
-          background: rgba(27,186,107,0.05);
-          border: 1px solid rgba(27,186,107,0.16);
-          border-radius: 6px;
-          border-left: 3px solid #1bba6b;
+          display: flex; align-items: center; gap: 10px; margin-top: 20px; padding: 10px 14px;
+          background: rgba(27,186,107,0.05); border: 1px solid rgba(27,186,107,0.16); border-radius: 6px; border-left: 3px solid #1bba6b;
         }
-        .svsl-security-dot {
-          width: 6px; height: 6px;
-          border-radius: 50%;
-          background: #1bba6b;
-          flex-shrink: 0;
-          box-shadow: 0 0 7px rgba(27,186,107,0.55);
-          animation: svsSecPulse 2.2s ease-in-out infinite;
-        }
-        @keyframes svsSecPulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        .svsl-security-text {
-          font-family: 'Inter', sans-serif;
-          font-size: 11px;
-          color: #7a9180;
-          line-height: 1.45;
-          letter-spacing: 0.1px;
-        }
+        .svsl-security-dot { width: 6px; height: 6px; border-radius: 50%; background: #1bba6b; flex-shrink: 0; box-shadow: 0 0 7px rgba(27,186,107,0.55); animation: svsSecPulse 2.2s ease-in-out infinite; }
+        @keyframes svsSecPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .svsl-security-text { font-family: 'Inter', sans-serif; font-size: 11px; color: #7a9180; line-height: 1.45; letter-spacing: 0.1px; }
 
         /* Footer */
-        .svsl-footer {
-          margin-top: 36px;
-          padding-top: 20px;
-          border-top: 1px solid #e6ede8;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .svsl-footer-copy {
-          font-family: 'Inter', sans-serif;
-          font-size: 10px;
-          color: #aabcb2;
-          letter-spacing: 0.2px;
-        }
-        .svsl-footer-mark {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 10px;
-          color: #1bba6b;
-          font-weight: 500;
-          letter-spacing: 0.3px;
-          opacity: 0.75;
-        }
+        .svsl-footer { margin-top: 36px; padding-top: 20px; border-top: 1px solid #e6ede8; display: flex; align-items: center; justify-content: space-between; }
+        .svsl-footer-copy { font-family: 'Inter', sans-serif; font-size: 10px; color: #aabcb2; letter-spacing: 0.2px; }
+        .svsl-footer-mark { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #1bba6b; font-weight: 500; letter-spacing: 0.3px; opacity: 0.75; }
       `}</style>
 
       {/* ── TOAST NOTIFICATION COMPONENT ── */}
@@ -576,7 +344,9 @@ export default function SVSLogin() {
                 </div>
               </div>
 
-              <button type="submit" className="svsl-btn">Sign In to Dashboard</button>
+              <button type="submit" className="svsl-btn" disabled={isAuthenticating}>
+                {isAuthenticating ? <div className="svsl-spinner"></div> : "Sign In to Dashboard"}
+              </button>
             </form>
 
             <div className="svsl-security">

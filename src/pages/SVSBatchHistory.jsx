@@ -339,7 +339,7 @@ const SVSBatchHistory = () => {
                               <td className="svsbh-td svsbh-td-bold">{p.cropName || "Unknown"}</td>
                               <td className="svsbh-td">{p.packedVariety || "Unknown"}</td>
                               <td className="svsbh-td svsbh-td-muted" style={{ color: '#1bba6b' }}>
-                                {p.labelRange || "Legacy / Random"}
+                                {p.labelRange || "Random"}
                               </td>
                               <td className="svsbh-td">
                                 <span className="svsbh-bag-pill">{p.quantity || 0}</span>
