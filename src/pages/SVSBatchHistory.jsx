@@ -153,8 +153,11 @@ const SVSBatchHistory = () => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
+      // Include EVERYTHING from the database model
       const rows = data.products.map(p => ({
-        "Date": p.dateOfPackaging || "Unknown",
+        "Packaging Date": p.dateOfPackaging || "N/A",
+        "Testing Date": p.dateOfTesting || "N/A",
+        "Expiry Date": p.dateOfExpiry || "N/A",
         "Lot Number": p.packedLotNumber || "N/A",
         "Crop Name": p.cropName || "Unknown",
         "Variety": p.packedVariety || "Unknown",
@@ -162,7 +165,10 @@ const SVSBatchHistory = () => {
         "Bags Produced": p.quantity || 0,
         "MRP": p.mrp || "N/A",
         "Unit Sale Price": p.unitSalePrice || "N/A",
-        "Net Quantity": p.netQty || "N/A"
+        "Net Quantity": p.netQty || "N/A",
+        "Plant Address": p.plantAddress || "N/A",
+        "Produced By": p.producedBy || "N/A",
+        "Leaflet URL": p.leafletUrl || "N/A"
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(rows);
@@ -351,6 +357,7 @@ const SVSBatchHistory = () => {
                             <th className="svsbh-th">Label Range</th>
                             <th className="svsbh-th">Bags</th>
                             <th className="svsbh-th">MRP</th>
+                            <th className="svsbh-th">USP</th>
                             <th className="svsbh-th">Net Qty</th>
                             <th className="svsbh-th">Actions</th>
                           </tr>
@@ -369,6 +376,7 @@ const SVSBatchHistory = () => {
                                 <span className="svsbh-bag-pill">{p.quantity || 0}</span>
                               </td>
                               <td className="svsbh-td">{p.mrp || "N/A"}</td>
+                              <td className="svsbh-td">{p.unitSalePrice || "N/A"}</td>
                               <td className="svsbh-td">{p.netQty || "N/A"}</td>
                               <td className="svsbh-td">
                                 <div className="svsbh-actions">
