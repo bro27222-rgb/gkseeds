@@ -165,10 +165,7 @@ const SVSBatchHistory = () => {
         "Bags Produced": p.quantity || 0,
         "MRP": p.mrp || "N/A",
         "Unit Sale Price": p.unitSalePrice || "N/A",
-        "Net Quantity": p.netQty || "N/A",
-        "Plant Address": p.plantAddress || "N/A",
-        "Produced By": p.producedBy || "N/A",
-        "Leaflet URL": p.leafletUrl || "N/A"
+        "Net Quantity": p.netQty || "N/A"
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(rows);
